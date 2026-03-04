@@ -1,0 +1,165 @@
+import random
+
+# dibujo del ahorcado por partes para validar el numero de fallos del jugador
+AHORCADO = [
+    """
+     +---+
+     |   |
+         |
+         |
+         |
+         |
+    =========
+    """,
+    """
+     +---+
+     |   |
+     O   |
+         |
+         |
+         |
+    =========
+    """,
+    """
+     +---+
+     |   |
+     O   |
+     |   |
+         |
+         |
+    =========
+    """,
+    """
+     +---+
+     |   |
+     O   |
+    /|   |
+         |
+         |
+    =========
+    """,
+    """
+     +---+
+     |   |
+     O   |
+    /|\\  |
+         |
+         |
+    =========
+    """,
+    """
+     +---+
+     |   |
+     O   |
+    /|\\  |
+    /    |
+         |
+    =========
+    """,
+    """
+     +---+
+     |   |
+     O   |
+    /|\\  |
+    / \\  |
+         |
+    =========
+    """
+]
+
+# Lista de palabras
+PALABRAS = [
+    "python", "algoritmo", "variable", "funcion", "bucle",
+    "clase", "objeto", "lista", "diccionario", "tupla",
+    "computadora", "programacion", "sistema", "software", "hardware"
+]
+
+def elegir_palabra():
+    
+    return random.choice(PALABRAS)
+
+def mostrar_tablero(palabra_secreta, letras_correctas, letras_incorrectas):
+    
+    print(AHORCADO[len(letras_incorrectas)])
+    print("Letras incorrectas:", " ".join(sorted(letras_incorrectas)) if letras_incorrectas else "—")
+
+    # Mostrar la palabra con guiones y letras adivinadas
+    mostrada = []
+    for letra in palabra_secreta:
+        if letra in letras_correctas:
+            mostrada.append(letra)
+        else:
+            mostrada.append("_")
+    print("Palabra:", " ".join(mostrada))
+    print()
+
+def pedir_letra(letras_probadas):
+    """
+    Pide una letra válida al usuario:
+    - Debe ser un único carácter.
+    - Debe ser alfabética (a-z).
+    - No debe haberse intentado antes.
+    """
+    while True:
+        intento = input("Ingresa una letra (a-z): ").strip().lower()
+        #validaciones de las letras ingresadas por el usuario
+        if len(intento) != 1:
+            print("Por favor, ingresa **solo una** letra.")
+            continue
+        if not intento.isalpha():
+            print("Solo se permiten letras (a-z).")
+            continue
+        if intento in letras_probadas:
+            print("Ya intentaste esa letra. Prueba con otra.")
+            continue
+
+        return intento
+
+def jugar_una_ronda():
+    """Gestiona una partida completa de ahorcado."""
+    palabra = elegir_palabra()
+    letras_correctas = set()
+    letras_incorrectas = set()
+    intentos_max = len(AHORCADO) - 1  # intentos permitidos antes de perder-6
+    #mensaje de bienvenida y cantidad de letras que contiene la palabra
+    print("\n¡  que comience el juego!")
+    print(f"La palabra tiene {len(palabra)} letras.\n")
+
+    while True:
+        mostrar_tablero(palabra, letras_correctas, letras_incorrectas)
+
+        # Comprobar si el jugador perdio o gano
+        # 1) gana y muestra el mensaje de felicitaciones
+        todas_adivinadas = all(letra in letras_correctas for letra in palabra)
+        if todas_adivinadas:
+            print(f"🎉 ¡Felicidades! Adivinaste la palabra: {palabra}")
+            break
+
+        # 2) pierde y muestra el mensaje de perdio y la palabra correcta
+        if len(letras_incorrectas) >= intentos_max:
+            print(AHORCADO[intentos_max])
+            print(f"💀 Has perdido. La palabra era: {palabra}")
+            break
+
+        # pedir una nueva letra
+        letra = pedir_letra(letras_correctas.union(letras_incorrectas))
+
+        # Verificar si la letra está en la palabra
+        if letra in palabra:
+            letras_correctas.add(letra)
+            print(f"✅ ¡Bien! La letra '{letra}' está en la palabra.\n")
+        else:
+            letras_incorrectas.add(letra)
+            print(f"❌ La letra '{letra}' no está. Te quedan {intentos_max - len(letras_incorrectas)} fallos.\n")
+
+def main():
+    
+    while True:
+        jugar_una_ronda()
+        otra = input("\n¿Quieres jugar otra vez? (s/n): ").strip().lower()
+        if otra != "s":
+            print("¡Gracias por jugar! !adios! ")
+            break
+
+if __name__ == "__main__":
+    main()
